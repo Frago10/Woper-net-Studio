@@ -1,0 +1,280 @@
+---
+/*
+  Formulario de agenda. No hay backend: arma un mensaje y abre WhatsApp.
+  Los precios y los textos salen de src/data/site.ts y src/lib/booking.ts.
+*/
+import Icon from './Icon.astro';
+import { site } from '../data/site.ts';
+import { whatsappUrl } from '../lib/booking.ts';
+---
+
+<form class="agenda" id="agenda" novalidate aria-labelledby="contacto-titulo" data-agenda>
+  <div class="campo">
+    <label class="campo__etiqueta" for="agenda-servicio">Servicio</label>
+    <div class="selector">
+      <select
+        class="control"
+        id="agenda-servicio"
+        name="servicio"
+        required
+        aria-describedby="agenda-servicio-error"
+      >
+        <option value="">Elegí un servicio</option>
+        {site.services.map((service) => <option value={service.id}>{service.name}</option>)}
+      </select>
+      <Icon name="abajo" />
+    </div>
+    <p class="campo__error" id="agenda-servicio-error" aria-live="polite"></p>
+  </div>
+
+  <fieldset class="campo" aria-describedby="agenda-vehiculo-error">
+    <legend class="campo__etiqueta">Vehículo</legend>
+    <div class="opciones">
+      {
+        site.vehicles.map((vehicle) => (
+          <label class="opcion">
+            <input type="radio" name="vehiculo" value={vehicle.id} required />
+            <span>{vehicle.name}</span>
+          </label>
+        ))
+      }
+    </div>
+    <p class="campo__error" id="agenda-vehiculo-error" aria-live="polite"></p>
+  </fieldset>
+
+  <fieldset class="campo" aria-describedby="agenda-lugar-ayuda agenda-lugar-error">
+    <legend class="campo__etiqueta">Dónde</legend>
+    <div class="opciones">
+      {
+        site.places.map((place) => (
+          <label class="opcion">
+            <input type="radio" name="lugar" value={place.id} required />
+            <span>{place.name}</span>
+          </label>
+        ))
+      }
+    </div>
+    <p class="campo__ayuda" id="agenda-lugar-ayuda" aria-live="polite" hidden>
+      {site.homeService.basicNotice}
+    </p>
+    <p class="campo__error" id="agenda-lugar-error" aria-live="polite"></p>
+  </fieldset>
+
+  <div class="campos-dobles">
+    <div class="campo">
+      <label class="campo__etiqueta" for="agenda-fecha">
+        Fecha preferida <span class="campo__opcional">(opcional)</span>
+      </label>
+      <input
+        class="control"
+        id="agenda-fecha"
+        name="fecha"
+        type="date"
+        aria-describedby="agenda-fecha-ayuda"
+      />
+    </div>
+    <div class="campo">
+      <label class="campo__etiqueta" for="agenda-nombre">
+        Nombre <span class="campo__opcional">(opcional)</span>
+      </label>
+      <input
+        class="control"
+        id="agenda-nombre"
+        name="nombre"
+        type="text"
+        autocomplete="name"
+        maxlength="60"
+      />
+    </div>
+  </div>
+  <p class="campo__ayuda" id="agenda-fecha-ayuda" aria-live="polite" hidden>
+    En Desamparados atendemos {site.hours.days.toLowerCase()}, de {site.hours.time}. Elegí otra
+    fecha o coordinamos el día por WhatsApp.
+  </p>
+
+  <p class="agenda__resumen" aria-live="polite" data-agenda-resumen data-pendiente>
+    Elegí servicio, vehículo y lugar para ver el precio.
+  </p>
+
+  <div class="agenda__enviar">
+    <button class="boton boton--primario" type="submit">Enviar por WhatsApp</button>
+    <p class="campo__ayuda">Se abre WhatsApp con tu mensaje listo. No guardamos tus datos.</p>
+    <p class="campo__ayuda agenda__estado" aria-live="polite" data-agenda-estado></p>
+    <noscript>
+      <p class="campo__ayuda">
+        Este formulario necesita JavaScript. También podés
+        <a class="enlace" href={whatsappUrl(site.generalMessage)}>escribirnos por WhatsApp</a>.
+      </p>
+    </noscript>
+  </div>
+</form>
+
+<script>
+  import {
+    allowsHomeService,
+    buildMessage,
+    buildSummary,
+    isOpenAtShop,
+    whatsappUrl,
+  } from '../lib/booking.ts';
+  import type { Selection } from '../lib/booking.ts';
+
+  const form = document.querySelector<HTMLFormElement>('[data-agenda]');
+
+  if (form) {
+    const service = form.querySelector<HTMLSelectElement>('[name="servicio"]')!;
+    const vehicles = [...form.querySelectorAll<HTMLInputElement>('[name="vehiculo"]')];
+    const places = [...form.querySelectorAll<HTMLInputElement>('[name="lugar"]')];
+    const date = form.querySelector<HTMLInputElement>('[name="fecha"]')!;
+    const name = form.querySelector<HTMLInputElement>('[name="nombre"]')!;
+    const summary = form.querySelector<HTMLElement>('[data-agenda-resumen]')!;
+    const status = form.querySelector<HTMLElement>('[data-agenda-estado]')!;
+    const placeHelp = form.querySelector<HTMLElement>('#agenda-lugar-ayuda')!;
+    const dateHelp = form.querySelector<HTMLElement>('#agenda-fecha-ayuda')!;
+    const homeOption = places.find((input) => input.value === 'domicilio');
+    const emptySummary = summary.textContent ?? '';
+
+    const errors = {
+      servicio: form.querySelector<HTMLElement>('#agenda-servicio-error')!,
+      vehiculo: form.querySelector<HTMLElement>('#agenda-vehiculo-error')!,
+      lugar: form.querySelector<HTMLElement>('#agenda-lugar-error')!,
+    };
+
+    // La fecha no puede ser anterior a hoy.
+    const today = new Date();
+    date.min = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, '0'),
+      String(today.getDate()).padStart(2, '0'),
+    ].join('-');
+
+    const checked = (inputs: HTMLInputElement[]) => inputs.find((input) => input.checked)?.value ?? '';
+
+    const read = (): Selection => ({
+      service: service.value as Selection['service'],
+      vehicle: checked(vehicles) as Selection['vehicle'],
+      place: checked(places) as Selection['place'],
+      date: date.value,
+      name: name.value,
+    });
+
+    const setError = (key: keyof typeof errors, message: string) => {
+      errors[key].textContent = message;
+      if (key === 'servicio') {
+        if (message) service.setAttribute('aria-invalid', 'true');
+        else service.removeAttribute('aria-invalid');
+      }
+    };
+
+    const update = () => {
+      // Regla: el lavado básico no se ofrece a domicilio.
+      const homeAllowed = !service.value || allowsHomeService(service.value);
+      if (homeOption) {
+        if (!homeAllowed && homeOption.checked) homeOption.checked = false;
+        homeOption.disabled = !homeAllowed;
+      }
+      placeHelp.hidden = homeAllowed;
+
+      const selection = read();
+      const text = buildSummary(selection);
+      summary.textContent = text || emptySummary;
+      summary.toggleAttribute('data-pendiente', !text);
+
+      dateHelp.hidden = !(selection.place === 'sede' && selection.date && !isOpenAtShop(selection.date));
+
+      if (selection.service) setError('servicio', '');
+      if (selection.vehicle) setError('vehiculo', '');
+      if (selection.place) setError('lugar', '');
+    };
+
+    form.addEventListener('input', update);
+    form.addEventListener('change', update);
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const selection = read();
+
+      setError('servicio', selection.service ? '' : 'Elegí un servicio para continuar.');
+      setError('vehiculo', selection.vehicle ? '' : 'Elegí el tipo de vehículo.');
+      setError('lugar', selection.place ? '' : 'Elegí dónde querés el servicio.');
+
+      const firstInvalid = !selection.service
+        ? service
+        : !selection.vehicle
+          ? vehicles[0]
+          : !selection.place
+            ? places.find((input) => !input.disabled)
+            : undefined;
+      if (firstInvalid) {
+        firstInvalid.focus();
+        return;
+      }
+
+      const url = whatsappUrl(buildMessage(selection));
+
+      /*
+        FASE 2 (desactivada): enviar también la solicitud a un CRM, por ejemplo un
+        webhook de GoHighLevel. Para activarla:
+          1. Definí PUBLIC_FORM_WEBHOOK_URL en Vercel.
+          2. Quitá el comentario de este bloque.
+          3. Cambiá el texto "No guardamos tus datos" del formulario: dejaría de ser cierto.
+
+        const webhook = import.meta.env.PUBLIC_FORM_WEBHOOK_URL;
+        if (webhook) {
+          navigator.sendBeacon(
+            webhook,
+            new Blob([JSON.stringify({ ...selection, origen: 'landing' })], {
+              type: 'application/json',
+            }),
+          );
+        }
+      */
+
+      window.plausible?.('form_submit');
+
+      // Un enlace real abre WhatsApp sin que el navegador lo trate como ventana emergente.
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.click();
+
+      status.replaceChildren(
+        'Abrimos WhatsApp en otra pestaña. Si no se abrió, ',
+        Object.assign(document.createElement('a'), {
+          href: url,
+          target: '_blank',
+          rel: 'noopener',
+          className: 'enlace',
+          textContent: 'abrí el mensaje desde aquí',
+        }),
+        '.',
+      );
+    });
+
+    // Botones "Reservar" y "Agendar a domicilio": preseleccionan y llevan al formulario.
+    document.querySelectorAll<HTMLAnchorElement>('[data-reservar]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const wantedService = link.dataset.reservar;
+        const wantedPlace = link.dataset.lugar;
+        if (wantedService) service.value = wantedService;
+        if (wantedPlace === 'domicilio') {
+          if (service.value && !allowsHomeService(service.value)) service.value = '';
+          const option = places.find((input) => input.value === wantedPlace);
+          if (option) {
+            option.disabled = false;
+            option.checked = true;
+          }
+        }
+        update();
+        // Scroll al formulario (suave solo si no hay reducción de movimiento) y foco al primer campo.
+        event.preventDefault();
+        history.pushState(null, '', '#agenda');
+        form.scrollIntoView();
+        service.focus({ preventScroll: true });
+      });
+    });
+
+    update();
+  }
+</script>

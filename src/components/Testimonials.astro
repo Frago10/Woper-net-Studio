@@ -1,0 +1,32 @@
+---
+/*
+  Clientes. Solo aparece si `testimonials` en src/data/site.ts tiene elementos.
+  Nunca se rellenan con testimonios inventados.
+*/
+import { site } from '../data/site.ts';
+
+const { testimonials } = site;
+---
+
+{
+  testimonials.length > 0 && (
+    <div class="clientes">
+      <h3 class="subtitulo" id="clientes-titulo">
+        Lo que dicen los clientes
+      </h3>
+      <ul class="clientes__lista" role="list">
+        {testimonials.map((item) => (
+          <li>
+            <blockquote class="clientes__cita">
+              <p>{item.quote}</p>
+              <footer>
+                {item.author}
+                {item.vehicle && `, ${item.vehicle}`}
+              </footer>
+            </blockquote>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}

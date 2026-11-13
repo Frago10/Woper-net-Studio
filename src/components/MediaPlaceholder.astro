@@ -1,0 +1,15 @@
+---
+/*
+  Panel que ocupa el lugar de una foto o video que todavía no existe.
+  El nombre del archivo esperado solo se muestra en desarrollo.
+*/
+interface Props {
+  file: string;
+}
+
+const { file } = Astro.props;
+---
+
+<div class="vacio" aria-hidden="true">
+  {import.meta.env.DEV && <span class="vacio__archivo">public/media/{file}</span>}
+</div>

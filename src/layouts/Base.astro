@@ -1,0 +1,148 @@
+---
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/components.css';
+import fontUrl from '@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url';
+import { site } from '../data/site.ts';
+import { formatColones } from '../lib/booking.ts';
+import { getImage, getOgImage, srcset } from '../lib/media.ts';
+
+const origin = Astro.site ?? new URL(Astro.url.origin);
+const canonical = new URL(Astro.url.pathname, origin).href;
+const ogImage = new URL(getOgImage(), origin).href;
+const poster = getImage(site.hero.poster);
+const { contact, location, hours } = site;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': ['AutoWash', 'LocalBusiness'],
+  '@id': `${new URL('/', origin).href}#negocio`,
+  name: site.name,
+  slogan: site.brandPhrase.join(' '),
+  description: site.seo.description,
+  url: new URL('/', origin).href,
+  image: ogImage,
+  telephone: contact.whatsapp.schema,
+  contactPoint: [
+    {
+      '@type': 'ContactPoint',
+      telephone: contact.whatsapp.schema,
+      contactType: 'reservations',
+      availableLanguage: 'es',
+    },
+    {
+      '@type': 'ContactPoint',
+      telephone: contact.phone.schema,
+      contactType: 'customer service',
+      availableLanguage: 'es',
+    },
+  ],
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: location.street,
+    addressLocality: location.district,
+    addressRegion: location.province,
+    addressCountry: location.countryCode,
+  },
+  openingHoursSpecification: [
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: hours.schema.days,
+      opens: hours.schema.opens,
+      closes: hours.schema.closes,
+    },
+  ],
+  areaServed: { '@type': 'AdministrativeArea', name: location.province },
+  currenciesAccepted: 'CRC',
+  sameAs: [contact.instagram.url],
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Servicios de lavado y detallado',
+    itemListElement: site.services
+      .filter((service) => service.range && service.price !== null)
+      .map((service) => ({
+        '@type': 'Offer',
+        name: `${service.name}, ${formatColones(service.price!)}`,
+        price: service.price,
+        priceCurrency: 'CRC',
+        itemOffered: {
+          '@type': 'Service',
+          name: service.name,
+          description: service.range!.includes.join(', '),
+        },
+      })),
+  },
+};
+---
+
+<!doctype html>
+<html lang={site.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{site.seo.title}</title>
+    <meta name="description" content={site.seo.description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#0e1012" />
+
+    <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
+    {
+      poster && (
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          imagesrcset={srcset(poster.avif)}
+          imagesizes="100vw"
+          fetchpriority="high"
+        />
+      )
+    }
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content="es_CR" />
+    <meta property="og:title" content={site.seo.title} />
+    <meta property="og:description" content={site.seo.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.name}. ${site.brandPhrase.join(' ')}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={site.seo.title} />
+    <meta name="twitter:description" content={site.seo.description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+
+    {
+      site.analytics.plausibleDomain && (
+        <script
+          is:inline
+          defer
+          data-domain={site.analytics.plausibleDomain}
+          src="https://plausible.io/js/script.js"
+        />
+      )
+    }
+  </head>
+  <body>
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
+    <slot />
+
+    <script>
+      // Eventos de analítica (solo si Plausible está activado en src/data/site.ts).
+      document.addEventListener('click', (event) => {
+        const target = event.target instanceof Element ? event.target.closest('[data-evento]') : null;
+        const name = target?.getAttribute('data-evento');
+        if (name) window.plausible?.(name);
+      });
+    </script>
+  </body>
+</html>

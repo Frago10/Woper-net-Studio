@@ -1,0 +1,49 @@
+---
+/* Una fila de la gama de servicios. El insignia va sobre panel asfalto. */
+import Icon from './Icon.astro';
+import { formatColones } from '../lib/booking.ts';
+import type { Service } from '../data/site.ts';
+
+interface Props {
+  service: Service;
+}
+
+const { service } = Astro.props;
+const range = service.range!;
+const flagship = Boolean(range.flagship);
+---
+
+<article class:list={['fila', flagship && 'fila--insignia oscuro']}>
+  <div class="fila__nombre">
+    <h3>{service.name}</h3>
+    <p>{range.description}</p>
+    {range.note && <p class="fila__nota">{range.note}</p>}
+  </div>
+  <ul class:list={['incluye fila__incluye', range.includes.length > 4 && 'incluye--doble']} role="list">
+    {
+      range.includes.map((item) => (
+        <li>
+          <Icon name="check" />
+          <span>{item}</span>
+        </li>
+      ))
+    }
+  </ul>
+  <div class="fila__compra">
+    {
+      service.price !== null && (
+        <p class="precio">
+          <data value={service.price}>{formatColones(service.price)}</data>
+        </p>
+      )
+    }
+    <a
+      class:list={['boton', flagship ? 'boton--primario' : 'boton--secundario']}
+      href="#agenda"
+      aria-label={`Reservar ${service.name}`}
+      data-reservar={service.id}
+    >
+      Reservar
+    </a>
+  </div>
+</article>
