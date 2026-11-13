@@ -1,0 +1,44 @@
+---
+import VehicleIcon from './VehicleIcon.astro';
+import { site } from '../data/site.ts';
+import { formatColones } from '../lib/booking.ts';
+---
+
+<section class="section oscuro" id="domicilio" aria-labelledby="domicilio-titulo">
+  <div class="contenedor">
+    <header class="encabezado">
+      <h2 id="domicilio-titulo">Vamos hasta tu casa.</h2>
+      <p>Nosotros llevamos los productos de limpieza. Vos facilitás el agua y la electricidad.</p>
+    </header>
+
+    <div class="rejilla domicilio">
+      <div class="domicilio__pasos">
+        <h3 class="subtitulo">Cómo funciona</h3>
+        <ol class="pasos" role="list">
+          {site.homeService.steps.map((step) => <li>{step}</li>)}
+        </ol>
+      </div>
+
+      <div class="domicilio__precios">
+        <h3 class="subtitulo">Precio por tipo de vehículo</h3>
+        <ul class="vehiculos" role="list">
+          {
+            site.vehicles.map((vehicle) => (
+              <li>
+                <VehicleIcon vehicle={vehicle.id} />
+                <span class="vehiculos__nombre">{vehicle.name}</span>
+                <span class="precio">
+                  <data value={vehicle.homePrice}>{formatColones(vehicle.homePrice)}</data>
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="domicilio__nota">{site.homeService.note}</p>
+        <a class="boton boton--primario" href="#agenda" data-reservar="" data-lugar="domicilio">
+          Agendar a domicilio
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,98 @@
+/*
+  Tokens de diseño de Woper Net Studio.
+  Ningún color ni tamaño se escribe suelto en los componentes: todo sale de aquí.
+  scripts/check-contrast.mjs lee este archivo para verificar el contraste.
+*/
+:root {
+  /* Color */
+  --asfalto: #0e1012;
+  --grafito: #1a1d21;
+  --ceramica: #f2f3f4;
+  --cromo: #a9afb6;
+  --acero: #5b626a;
+  --borde-oscuro: #7b828a;
+  --rojo: #d4141c;
+  --rojo-hover: #b50f16;
+  --blanco: #ffffff;
+  --linea-oscura: #2e3338;
+  --linea-clara: #d3d6d9;
+
+  /* Opacidad mínima del scrim detrás del texto del hero (asfalto sobre la foto) */
+  --scrim-texto: 0.86;
+  --scrim-cabecera: 0.8;
+  /* Velo parejo sobre la foto o el video del hero: la oscurece para que se lea como escena */
+  --tinte-hero: 0.32;
+
+  /* Barra de luz del hero y brillo de los paneles vacíos (blanco translúcido) */
+  --luz-pico: 0.24;
+  --luz-fuerte: rgb(255 255 255 / var(--luz-pico));
+  --luz-suave: rgb(255 255 255 / 0.07);
+  --brillo-vacio: rgb(255 255 255 / 0.045);
+
+  /* Tipografía */
+  --fuente: 'Archivo Variable', 'Archivo Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fuente-titular: 'Archivo Variable', 'Archivo Fallback Ancha', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ancho-titular: 120%;
+  --ancho-precio: 125%;
+  --ancho-texto: 100%;
+  --peso-titular: 300;
+  --peso-texto: 400;
+  --peso-medio: 500;
+  --interletrado-titular: -0.02em;
+
+  --t-display: clamp(3rem, 2rem + 4.4vw, 6.5rem);
+  --t-h2: clamp(2.25rem, 4.5vw, 4rem);
+  --t-h3: clamp(1.5rem, 2vw, 2rem);
+  --t-precio: clamp(2rem, 3vw, 2.75rem);
+  --t-cuerpo: 1.0625rem;
+  --t-pequeno: 0.9375rem;
+  --interlineado-cuerpo: 1.65;
+  --medida: 62ch;
+
+  /* Espaciado: base de 4 px */
+  --s-4: 0.25rem;
+  --s-8: 0.5rem;
+  --s-12: 0.75rem;
+  --s-16: 1rem;
+  --s-24: 1.5rem;
+  --s-32: 2rem;
+  --s-48: 3rem;
+  --s-64: 4rem;
+  --s-96: 6rem;
+  --s-128: 8rem;
+  --s-160: 10rem;
+
+  /* Rejilla y secciones */
+  --ancho-max: 1440px;
+  --margen: clamp(20px, 5vw, 80px);
+  --seccion: clamp(96px, 12vw, 200px);
+  --canal: var(--s-24);
+
+  /* Forma */
+  --radio-control: 4px;
+  --alto-cabecera: 72px;
+  --alto-boton: 56px;
+  --alto-tactil: 44px;
+  --filete: 1px;
+  --foco-grosor: 3px;
+  --foco-desfase: 3px;
+
+  /* Movimiento */
+  --dur-ui: 150ms;
+  --dur-capa: 200ms;
+  --dur-titular: 700ms;
+  --dur-luz: 1600ms;
+  --curva: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --curva-luz: cubic-bezier(0.45, 0, 0.25, 1);
+
+  /* Capas */
+  --z-barra: 30;
+  --z-cabecera: 40;
+}
+
+/* En pantallas muy angostas el titular baja de 3 rem para que "Es cuidado." quepa en una línea. */
+@media (max-width: 359px) {
+  :root {
+    --t-display: 2.625rem;
+  }
+}

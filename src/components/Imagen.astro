@@ -1,0 +1,31 @@
+---
+/* Imagen optimizada: AVIF y WebP con srcset, y medidas explícitas para evitar saltos. */
+import { srcset } from '../lib/media.ts';
+import type { ImageEntry } from '../lib/media.ts';
+
+interface Props {
+  image: ImageEntry;
+  alt: string;
+  sizes: string;
+  class?: string;
+  /** Solo para la imagen principal de la página (LCP). */
+  priority?: boolean;
+}
+
+const { image, alt, sizes, class: className, priority = false } = Astro.props;
+---
+
+<picture>
+  <source type="image/avif" srcset={srcset(image.avif)} sizes={sizes} />
+  <source type="image/webp" srcset={srcset(image.webp)} sizes={sizes} />
+  <img
+    class={className}
+    src={image.fallback.src}
+    width={image.width}
+    height={image.height}
+    alt={alt}
+    loading={priority ? 'eager' : 'lazy'}
+    decoding="async"
+    fetchpriority={priority ? 'high' : undefined}
+  />
+</picture>

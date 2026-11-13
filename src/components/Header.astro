@@ -1,0 +1,118 @@
+---
+import Icon from './Icon.astro';
+import Marca from './Marca.astro';
+import { site } from '../data/site.ts';
+import { telUrl, whatsappUrl } from '../lib/booking.ts';
+
+const { nav } = site;
+---
+
+<header class="cabecera oscuro" data-cabecera>
+  <div class="contenedor cabecera__fila">
+    <Marca />
+    <nav class="cabecera__nav" aria-label="Principal">
+      <ul>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <a class="boton boton--primario boton--compacto cabecera__agendar" href="#agenda">Agendar</a>
+    <button
+      class="icono-boton cabecera__menu"
+      type="button"
+      aria-haspopup="dialog"
+      aria-controls="menu-movil"
+      aria-expanded="false"
+      aria-label="Abrir menú"
+      data-menu-abrir
+    >
+      <Icon name="menu" />
+    </button>
+  </div>
+</header>
+
+<dialog class="menu oscuro" id="menu-movil" aria-label="Menú" data-menu>
+  <div class="contenedor menu__barra">
+    <span class="marca__nombre">{site.name}</span>
+    <button class="icono-boton" type="button" aria-label="Cerrar menú" data-menu-cerrar>
+      <Icon name="cerrar" />
+    </button>
+  </div>
+  <nav class="contenedor menu__nav" aria-label="Principal, menú móvil">
+    <ul>
+      {
+        nav.map((item) => (
+          <li>
+            <a href={item.href} data-menu-enlace>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+  <div class="contenedor menu__pie">
+    <a
+      class="boton boton--primario"
+      href={whatsappUrl(site.generalMessage)}
+      target="_blank"
+      rel="noopener"
+      data-evento="whatsapp_click"
+    >
+      Agendar por WhatsApp
+    </a>
+    <a
+      class="boton boton--secundario"
+      href={telUrl(site.contact.phone.international)}
+      data-evento="call_click"
+    >
+      Llamar al {site.contact.phone.display}
+    </a>
+  </div>
+</dialog>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-cabecera]');
+  const menu = document.querySelector<HTMLDialogElement>('[data-menu]');
+  const openButton = document.querySelector<HTMLButtonElement>('[data-menu-abrir]');
+
+  // Cabecera sólida pasados 80 px de scroll.
+  if (header) {
+    const update = () => header.toggleAttribute('data-solida', window.scrollY > 80);
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  }
+
+  // Menú móvil: <dialog> nativo. Atrapa el foco, cierra con Escape y devuelve el foco.
+  if (menu && openButton) {
+    openButton.addEventListener('click', () => {
+      menu.showModal();
+      openButton.setAttribute('aria-expanded', 'true');
+    });
+    menu.addEventListener('close', () => openButton.setAttribute('aria-expanded', 'false'));
+    menu.querySelector('[data-menu-cerrar]')?.addEventListener('click', () => menu.close());
+    menu.querySelectorAll<HTMLAnchorElement>('[data-menu-enlace]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        // Se cierra primero para que el foco y el scroll lleguen a la sección.
+        event.preventDefault();
+        menu.close();
+        const target = document.querySelector<HTMLElement>(link.hash);
+        if (target) {
+          history.pushState(null, '', link.hash);
+          target.scrollIntoView();
+          target.setAttribute('tabindex', '-1');
+          target.focus({ preventScroll: true });
+        }
+      });
+    });
+    // Si la pantalla crece hasta mostrar la navegación completa, el menú sobra.
+    window.matchMedia('(min-width: 960px)').addEventListener('change', (event) => {
+      if (event.matches && menu.open) menu.close();
+    });
+  }
+</script>

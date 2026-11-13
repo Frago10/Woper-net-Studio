@@ -1,0 +1,52 @@
+---
+/*
+  Emblema de la marca (la llanta con pinza roja).
+  Si existe public/media/logo/woper-net-emblema.svg o .png se usa ese archivo.
+  Mientras no exista, se dibuja un emblema provisional.
+*/
+import { getFile, getImage, srcset } from '../lib/media.ts';
+
+const svg = getFile('logo/woper-net-emblema.svg');
+const png = getImage('logo/woper-net-emblema.png');
+
+// El emblema se muestra a 36 px de alto y conserva su proporción.
+const HEIGHT = 36;
+const pngWidth = png ? Math.round((HEIGHT * png.width) / png.height) : HEIGHT;
+---
+
+{
+  svg ? (
+    <img class="marca__emblema" src={svg} height={HEIGHT} alt="" />
+  ) : png ? (
+    <picture>
+      <source type="image/avif" srcset={srcset(png.avif)} sizes={`${pngWidth}px`} />
+      <source type="image/webp" srcset={srcset(png.webp)} sizes={`${pngWidth}px`} />
+      <img
+        class="marca__emblema"
+        src={png.fallback.src}
+        width={pngWidth}
+        height={HEIGHT}
+        alt=""
+      />
+    </picture>
+  ) : (
+    <svg class="marca__emblema" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+      <g fill="none" stroke="currentColor">
+        <circle cx="24" cy="24" r="20" stroke-width="5" />
+        <circle cx="24" cy="24" r="12.5" stroke-width="1.5" />
+        <path
+          stroke-width="1.5"
+          stroke-linecap="round"
+          d="M24 20.5V11.5M27.33 22.92l8.56-2.78M26.06 26.83l5.29 7.28M21.94 26.83l-5.29 7.28M20.67 22.92l-8.56-2.78"
+        />
+      </g>
+      <path
+        fill="none"
+        stroke="var(--rojo)"
+        stroke-width="4.5"
+        d="M28.25 16.64A8.5 8.5 0 0 1 32.37 25.48"
+      />
+      <circle cx="24" cy="24" r="3" fill="currentColor" />
+    </svg>
+  )
+}

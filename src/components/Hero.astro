@@ -1,0 +1,189 @@
+---
+import Icon from './Icon.astro';
+import MediaPlaceholder from './MediaPlaceholder.astro';
+import { site } from '../data/site.ts';
+import { whatsappUrl } from '../lib/booking.ts';
+import { getFile, getImage, srcset } from '../lib/media.ts';
+
+const poster = getImage(site.hero.poster);
+const posterMobile = getImage(site.hero.posterMobile);
+const videos = site.hero.videos
+  .map((file) => ({
+    src: getFile(file),
+    type: file.endsWith('.webm') ? 'video/webm' : 'video/mp4',
+  }))
+  .filter((video) => video.src);
+const hasVideo = Boolean(poster) && videos.length > 0;
+
+const facts = [
+  { value: site.hours.days, detail: site.hours.time },
+  { value: site.location.street, detail: site.location.district },
+  { value: 'Servicio a domicilio', detail: site.homeService.coverage },
+];
+---
+
+<section class="hero oscuro" id="inicio" aria-labelledby="hero-titulo">
+  <div class="hero__escena">
+    <div class="hero__medio">
+      {
+        poster ? (
+          <picture>
+            {posterMobile && (
+              <>
+                <source
+                  media="(max-width: 767px)"
+                  type="image/avif"
+                  srcset={srcset(posterMobile.avif)}
+                  sizes="100vw"
+                />
+                <source
+                  media="(max-width: 767px)"
+                  type="image/webp"
+                  srcset={srcset(posterMobile.webp)}
+                  sizes="100vw"
+                />
+              </>
+            )}
+            <source type="image/avif" srcset={srcset(poster.avif)} sizes="100vw" />
+            <source type="image/webp" srcset={srcset(poster.webp)} sizes="100vw" />
+            <img
+              class="hero__imagen"
+              src={poster.fallback.src}
+              width={poster.width}
+              height={poster.height}
+              alt={site.hero.posterAlt}
+              decoding="async"
+              fetchpriority="high"
+            />
+          </picture>
+        ) : (
+          <MediaPlaceholder file={site.hero.poster} />
+        )
+      }
+      {
+        hasVideo && (
+          <video
+            class="hero__video"
+            muted
+            loop
+            playsinline
+            preload="none"
+            aria-hidden="true"
+            tabindex="-1"
+            data-hero-video
+          >
+            {videos.map((video) => (
+              <source src={video.src} type={video.type} />
+            ))}
+          </video>
+        )
+      }
+    </div>
+
+    <div class="hero__contenido">
+      <div class="contenedor">
+        <h1 class="hero__titulo" id="hero-titulo">
+          {
+            site.brandPhrase.map((line) => (
+              <>
+                <span class="linea">
+                  <span>{line}</span>
+                </span>{' '}
+              </>
+            ))
+          }
+        </h1>
+        <p class="hero__sub">{site.hero.subtitle}</p>
+        <div class="acciones">
+          <a
+            class="boton boton--primario"
+            href={whatsappUrl(site.generalMessage)}
+            target="_blank"
+            rel="noopener"
+            data-evento="whatsapp_click"
+          >
+            Agendar por WhatsApp
+          </a>
+          <a class="boton boton--secundario" href="#servicios">Ver servicios</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__luz" aria-hidden="true"></div>
+
+    {
+      hasVideo && (
+        <button
+          class="icono-boton hero__pausa"
+          type="button"
+          aria-label="Pausar video"
+          data-hero-pausa
+        >
+          <span data-icono-pausa>
+            <Icon name="pausa" />
+          </span>
+          <span data-icono-reproducir hidden>
+            <Icon name="reproducir" />
+          </span>
+        </button>
+      )
+    }
+  </div>
+
+  <div class="hero__datos">
+    <ul class="contenedor">
+      {
+        facts.map((fact) => (
+          <li>
+            <span class="dato__valor">{fact.value}</span>
+            <span class="dato__detalle">{fact.detail}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<script>
+  /*
+    El video arranca después de cargar la página y de la barra de luz, para que
+    el póster sea el LCP y la carga inicial no compita con la decodificación.
+    Con movimiento reducido no se reproduce (el CSS lo oculta y queda el póster).
+  */
+  const video = document.querySelector<HTMLVideoElement>('[data-hero-video]');
+  const button = document.querySelector<HTMLButtonElement>('[data-hero-pausa]');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (video && button) {
+    const pauseIcon = button.querySelector<HTMLElement>('[data-icono-pausa]');
+    const playIcon = button.querySelector<HTMLElement>('[data-icono-reproducir]');
+
+    const sync = () => {
+      const playing = !video.paused;
+      button.setAttribute('aria-label', playing ? 'Pausar video' : 'Reproducir video');
+      if (pauseIcon) pauseIcon.hidden = !playing;
+      if (playIcon) playIcon.hidden = playing;
+    };
+
+    const start = () => {
+      if (reduced.matches) return;
+      video.play().catch(() => sync());
+    };
+
+    video.addEventListener('play', sync);
+    video.addEventListener('pause', sync);
+    button.addEventListener('click', () => {
+      if (video.paused) video.play().catch(() => sync());
+      else video.pause();
+    });
+    reduced.addEventListener('change', () => {
+      if (reduced.matches) video.pause();
+    });
+
+    // Espera a que termine la barra de luz: primero el titular, después la luz, después el video.
+    const schedule = () => window.setTimeout(start, 2600);
+    if (document.readyState === 'complete') schedule();
+    else window.addEventListener('load', schedule, { once: true });
+    sync();
+  }
+</script>

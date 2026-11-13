@@ -1,0 +1,25 @@
+---
+/*
+  Medios de pago. Solo aparece si `paymentMethods` en src/data/site.ts tiene elementos.
+  No se supone ninguno hasta que el negocio los confirme.
+*/
+import { site } from '../data/site.ts';
+
+const { paymentMethods } = site;
+---
+
+{
+  paymentMethods.length > 0 && (
+    <div class="pagos">
+      <h3 class="subtitulo">Medios de pago</h3>
+      <ul role="list">
+        {paymentMethods.map((method) => (
+          <li>
+            {method.name}
+            {method.detail && <span>, {method.detail}</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}

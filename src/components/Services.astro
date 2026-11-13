@@ -1,0 +1,33 @@
+---
+import ServiceRow from './ServiceRow.astro';
+import { site } from '../data/site.ts';
+import { whatsappUrl } from '../lib/booking.ts';
+
+const rows = site.services.filter((service) => service.range);
+---
+
+<section class="section claro" id="servicios" aria-labelledby="servicios-titulo">
+  <div class="contenedor">
+    <header class="encabezado">
+      <h2 id="servicios-titulo">Servicios y precios</h2>
+      <p>Elegí según cuánto cuidado necesita tu carro.</p>
+    </header>
+
+    <div class="gama">
+      {rows.map((service) => <ServiceRow service={service} />)}
+    </div>
+
+    <p class="gama__extra">
+      {site.extras.text}{' '}
+      <a
+        class="enlace"
+        href={whatsappUrl(site.extras.message)}
+        target="_blank"
+        rel="noopener"
+        data-evento="whatsapp_click"
+      >
+        {site.extras.linkLabel}</a
+      >.
+    </p>
+  </div>
+</section>

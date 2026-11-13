@@ -1,0 +1,54 @@
+---
+/*
+  Barra fija en móvil (menos de 768 px). Aparece cuando el hero sale de la
+  pantalla y se oculta cuando se ve el contacto o el footer, así que nunca
+  tapa contenido ni duplica una acción visible.
+*/
+import Icon from './Icon.astro';
+import { site } from '../data/site.ts';
+import { telUrl, whatsappUrl } from '../lib/booking.ts';
+---
+
+<div class="barra-movil oscuro" data-barra inert>
+  <a
+    class="boton boton--primario"
+    href={whatsappUrl(site.generalMessage)}
+    target="_blank"
+    rel="noopener"
+    data-evento="whatsapp_click"
+  >
+    Agendar por WhatsApp
+  </a>
+  <a
+    class="boton boton--secundario"
+    href={telUrl(site.contact.phone.international)}
+    aria-label={`Llamar al ${site.contact.phone.display}`}
+    data-evento="call_click"
+  >
+    <Icon name="telefono" />
+    Llamar
+  </a>
+</div>
+
+<script>
+  const bar = document.querySelector<HTMLElement>('[data-barra]');
+  const watched = [
+    document.querySelector('#inicio'),
+    document.querySelector('#contacto'),
+    document.querySelector('footer'),
+  ].filter((element): element is Element => element !== null);
+
+  if (bar && 'IntersectionObserver' in window) {
+    const visible = new Set<Element>();
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) visible.add(entry.target);
+        else visible.delete(entry.target);
+      }
+      const show = visible.size === 0;
+      bar.toggleAttribute('data-visible', show);
+      bar.inert = !show;
+    });
+    watched.forEach((element) => observer.observe(element));
+  }
+</script>

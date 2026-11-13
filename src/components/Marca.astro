@@ -1,0 +1,19 @@
+---
+/* Emblema + nombre. Enlaza al inicio de la página. */
+import Emblema from './Emblema.astro';
+import { site } from '../data/site.ts';
+import { getFile } from '../lib/media.ts';
+
+const wordmark = getFile('logo/woper-net-wordmark.svg') ?? getFile('logo/woper-net-wordmark.png');
+---
+
+<a class="marca" href="#inicio" aria-label={`${site.name}, ir al inicio`}>
+  <Emblema />
+  {
+    wordmark ? (
+      <img class="marca__wordmark" src={wordmark} height="28" alt="" />
+    ) : (
+      <span class="marca__nombre">{site.name}</span>
+    )
+  }
+</a>

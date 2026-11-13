@@ -1,0 +1,79 @@
+---
+import ContactForm from './ContactForm.astro';
+import Icon from './Icon.astro';
+import PaymentMethods from './PaymentMethods.astro';
+import { site } from '../data/site.ts';
+import { mapsUrl, telUrl, whatsappUrl } from '../lib/booking.ts';
+
+const { contact, location, hours } = site;
+const address = `${location.street}, ${location.district}`;
+---
+
+<section class="section oscuro" id="contacto" aria-labelledby="contacto-titulo">
+  <div class="contenedor">
+    <header class="encabezado">
+      <h2 id="contacto-titulo">Agendá tu servicio.</h2>
+    </header>
+
+    <div class="rejilla contacto">
+      <div class="contacto__datos">
+        <dl class="datos">
+          <div>
+            <dt>WhatsApp</dt>
+            <dd>
+              <a
+                class="enlace"
+                href={whatsappUrl()}
+                target="_blank"
+                rel="noopener"
+                data-evento="whatsapp_click"
+              >
+                {contact.whatsapp.display}
+              </a>
+            </dd>
+          </div>
+          <div>
+            <dt>Teléfono</dt>
+            <dd>
+              <a
+                class="enlace"
+                href={telUrl(contact.phone.international)}
+                data-evento="call_click"
+              >
+                {contact.phone.display}
+              </a>
+            </dd>
+          </div>
+          <div>
+            <dt>Instagram</dt>
+            <dd>
+              <a class="enlace" href={contact.instagram.url} target="_blank" rel="noopener">
+                {contact.instagram.handle}
+              </a>
+            </dd>
+          </div>
+          <div>
+            <dt>Dirección</dt>
+            <dd>{address}</dd>
+          </div>
+          <div>
+            <dt>Horario</dt>
+            <dd>{hours.days}, de {hours.time}</dd>
+          </div>
+        </dl>
+
+        <a class="mapa" href={mapsUrl()} target="_blank" rel="noopener">
+          <span>
+            <span class="mapa__titulo">Abrir en Google Maps</span>
+            <span class="mapa__detalle">{address}</span>
+          </span>
+          <Icon name="externo" />
+        </a>
+
+        <PaymentMethods />
+      </div>
+
+      <ContactForm />
+    </div>
+  </div>
+</section>

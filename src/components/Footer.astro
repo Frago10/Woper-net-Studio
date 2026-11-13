@@ -1,0 +1,73 @@
+---
+import Marca from './Marca.astro';
+import { site } from '../data/site.ts';
+import { whatsappUrl } from '../lib/booking.ts';
+import { getImage, srcset } from '../lib/media.ts';
+
+const { contact } = site;
+// Logo completo (llanta y nombre). Si no existe, se usa el emblema con el nombre en texto.
+const logo = getImage('logo/woper-net-logo.png');
+const LOGO_WIDTH = 168;
+---
+
+<footer class="pie oscuro">
+  <div class="contenedor">
+    <div class="rejilla pie__fila">
+      <div class="pie__marca">
+        {
+          logo ? (
+            <a class="pie__logo" href="#inicio" aria-label={`${site.name}, ir al inicio`}>
+              <picture>
+                <source type="image/avif" srcset={srcset(logo.avif)} sizes={`${LOGO_WIDTH}px`} />
+                <source type="image/webp" srcset={srcset(logo.webp)} sizes={`${LOGO_WIDTH}px`} />
+                <img
+                  src={logo.fallback.src}
+                  width={LOGO_WIDTH}
+                  height={Math.round((LOGO_WIDTH * logo.height) / logo.width)}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+            </a>
+          ) : (
+            <Marca />
+          )
+        }
+        <p class="pie__frase">{site.brandPhrase.join(' ')}</p>
+      </div>
+
+      <nav class="pie__nav" aria-label="Pie de página">
+        <ul class="pie__lista">
+          {
+            site.nav.map((item) => (
+              <li>
+                <a href={item.href}>{item.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <ul class="pie__lista pie__contacto" role="list">
+        <li>
+          <a href={contact.instagram.url} target="_blank" rel="noopener">
+            Instagram {contact.instagram.handle}
+          </a>
+        </li>
+        <li>
+          <a href={whatsappUrl()} target="_blank" rel="noopener" data-evento="whatsapp_click">
+            WhatsApp {contact.whatsapp.display}
+          </a>
+        </li>
+        <li>
+          <a href={contact.whatsappQrUrl} target="_blank" rel="noopener">
+            Abrir el chat de WhatsApp
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <p class="pie__legal">© 2026 {site.name}</p>
+  </div>
+</footer>

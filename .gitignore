@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.astro/
+.vercel/
+.env
+.env.*
+!.env.example
+
+# Generado por scripts/prepare-media.mjs a partir de public/media/
+public/_media/
+src/data/media.generated.json
+
+# Salidas de verificación
+.qa/
+.DS_Store

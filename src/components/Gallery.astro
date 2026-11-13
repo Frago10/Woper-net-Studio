@@ -1,0 +1,176 @@
+---
+/*
+  Trabajos recientes: cuadrícula editorial con fotos 4:5 y reels 9:16.
+  Los elementos que ya tienen archivo se abren en un visor (<dialog> nativo).
+*/
+import Icon from './Icon.astro';
+import Imagen from './Imagen.astro';
+import MediaPlaceholder from './MediaPlaceholder.astro';
+import Testimonials from './Testimonials.astro';
+import { site } from '../data/site.ts';
+import { getFile, getImage } from '../lib/media.ts';
+
+/*
+  Anchos en columnas (de 12). Con reels: reel 3 y fotos alternando 5 y 4.
+  Solo fotos: 5, 4, 3 y luego 3, 4, 5. En ambos casos cada fila suma 12.
+*/
+const hasReels = site.gallery.some((item) => item.kind === 'reel');
+const photoSpans = hasReels ? [5, 4] : [5, 4, 3, 3, 4, 5];
+let photoCount = 0;
+const items = site.gallery.map((item) => {
+  const span = item.kind === 'reel' ? 3 : photoSpans[photoCount++ % photoSpans.length]!;
+  const image = item.kind === 'foto' ? getImage(item.file) : undefined;
+  const video = item.kind === 'reel' ? getFile(item.file) : undefined;
+  const poster = item.poster ? getImage(item.poster) : undefined;
+  return { ...item, span, image, video, poster, ready: Boolean(image || video) };
+});
+
+const slides = items.filter((item) => item.ready);
+const sizes = (span: number) =>
+  `(min-width: 1440px) ${Math.round((1280 / 12) * span)}px, (min-width: 768px) ${Math.round((100 / 12) * span)}vw, 50vw`;
+---
+
+<section class="section claro" id="trabajos" aria-labelledby="trabajos-titulo">
+  <div class="contenedor">
+    <header class="encabezado">
+      <h2 id="trabajos-titulo">Trabajos recientes.</h2>
+      <p>Lavados, llantas, faros y detallados hechos por {site.name}.</p>
+    </header>
+
+    <ul class="trabajos" role="list">
+      {
+        items.map((item) => {
+          const index = slides.indexOf(item);
+          const media = item.image ? (
+            <Imagen image={item.image} alt={item.alt} sizes={sizes(item.span)} />
+          ) : item.video && item.poster ? (
+            <Imagen image={item.poster} alt={item.alt} sizes={sizes(item.span)} />
+          ) : item.video ? (
+            <video src={`${item.video}#t=0.1`} preload="metadata" muted playsinline aria-label={item.alt} />
+          ) : (
+            <MediaPlaceholder file={item.file} />
+          );
+
+          return (
+            <li class:list={['trabajo', `trabajo--${item.span}`, item.kind === 'reel' && 'trabajo--reel']}>
+              <figure>
+                {item.ready ? (
+                  <button
+                    class="trabajo__marco"
+                    type="button"
+                    aria-haspopup="dialog"
+                    aria-label={`Ampliar: ${item.caption}`}
+                    data-visor-abrir={index}
+                  >
+                    {media}
+                    {item.kind === 'reel' && (
+                      <span class="trabajo__reel">
+                        <Icon name="reproducir" />
+                      </span>
+                    )}
+                  </button>
+                ) : (
+                  <div class="trabajo__marco">{media}</div>
+                )}
+                <figcaption>{item.caption}</figcaption>
+              </figure>
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    <p class="trabajos__mas">
+      <a class="enlace" href={site.contact.instagram.url} target="_blank" rel="noopener">
+        Ver más en Instagram<span class="solo-lectores"> (se abre en una pestaña nueva)</span>
+      </a>
+    </p>
+
+    <Testimonials />
+  </div>
+</section>
+
+{
+  slides.length > 0 && (
+    <dialog class="visor oscuro" aria-label="Trabajos recientes, vista ampliada" data-visor>
+      <div class="visor__barra">
+        <p class="visor__cuenta" aria-live="polite" data-visor-cuenta />
+        <button class="icono-boton" type="button" aria-label="Cerrar" data-visor-cerrar>
+          <Icon name="cerrar" />
+        </button>
+      </div>
+      <div class="visor__escena">
+        {slides.map((slide, index) => (
+          <figure class="visor__slide" data-visor-slide={index} data-caption={slide.caption} hidden>
+            {slide.image ? (
+              <Imagen image={slide.image} alt={slide.alt} sizes="(min-width: 768px) 80vw, 100vw" />
+            ) : (
+              <video
+                src={slide.poster ? slide.video : `${slide.video}#t=0.1`}
+                poster={slide.poster?.fallback.src}
+                controls
+                playsinline
+                preload="none"
+                aria-label={slide.alt}
+              />
+            )}
+          </figure>
+        ))}
+      </div>
+      <div class="visor__pie">
+        <button class="icono-boton" type="button" aria-label="Anterior" data-visor-anterior>
+          <Icon name="anterior" />
+        </button>
+        <p class="visor__texto" data-visor-texto />
+        <button class="icono-boton" type="button" aria-label="Siguiente" data-visor-siguiente>
+          <Icon name="siguiente" />
+        </button>
+      </div>
+    </dialog>
+  )
+}
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-visor]');
+
+  if (dialog) {
+    const slides = [...dialog.querySelectorAll<HTMLElement>('[data-visor-slide]')];
+    const count = dialog.querySelector<HTMLElement>('[data-visor-cuenta]');
+    const caption = dialog.querySelector<HTMLElement>('[data-visor-texto]');
+    let current = 0;
+
+    const stopVideos = () => dialog.querySelectorAll('video').forEach((video) => video.pause());
+
+    const show = (index: number) => {
+      current = (index + slides.length) % slides.length;
+      stopVideos();
+      slides.forEach((slide, i) => (slide.hidden = i !== current));
+      if (count) count.textContent = `${current + 1} de ${slides.length}`;
+      if (caption) caption.textContent = slides[current]?.dataset.caption ?? '';
+      // El video se empieza a cargar recién cuando su lámina se muestra.
+      const video = slides[current]?.querySelector('video');
+      if (video && video.preload === 'none') {
+        video.preload = 'metadata';
+        video.load();
+      }
+    };
+
+    document.querySelectorAll<HTMLButtonElement>('[data-visor-abrir]').forEach((button) => {
+      button.addEventListener('click', () => {
+        show(Number(button.dataset.visorAbrir));
+        dialog.showModal();
+      });
+    });
+
+    dialog.querySelector('[data-visor-cerrar]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-visor-anterior]')?.addEventListener('click', () => show(current - 1));
+    dialog.querySelector('[data-visor-siguiente]')?.addEventListener('click', () => show(current + 1));
+    dialog.addEventListener('close', stopVideos);
+    dialog.addEventListener('keydown', (event) => {
+      // Las flechas no se interceptan mientras se usa el control de un video.
+      if (event.target instanceof HTMLVideoElement) return;
+      if (event.key === 'ArrowLeft') show(current - 1);
+      if (event.key === 'ArrowRight') show(current + 1);
+    });
+  }
+</script>
