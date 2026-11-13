@@ -23,6 +23,7 @@ Node.js 22.18 o superior.
 | `npm run check` | Revisa tipos de TypeScript y Astro |
 | `npm run check:contrast` | Verifica el contraste WCAG AA de los tokens de color |
 | `npm run check:media` | Lista las fotos y videos que faltan en `public/media/` |
+| `npm run media:originales` | Regenera `public/media/` desde `originales/` (difumina placas, recorta hero y logo) |
 | `npm test` | Prueba precios, resumen y mensaje de WhatsApp del formulario |
 | `npm run test:a11y` | Auditoría con axe-core (requiere Playwright y el sitio en `preview`) |
 | `npm run verify` | `check`, `check:contrast`, `test` y `build` en cadena |
@@ -43,10 +44,12 @@ src/
   layouts/Base.astro    <head>, SEO, Open Graph y JSON-LD
   pages/index.astro     La página
   pages/robots.txt.ts   robots.txt con la URL del sitemap
+originales/             Logo y fotos tal como los entregó el cliente. No se publican
 public/
-  media/                Originales del cliente (logo, hero, trabajos)
-  favicon.svg, favicon.ico, apple-touch-icon.png, og-image.jpg
-scripts/                prepare-media, check-media, check-contrast, check-a11y, booking.test
+  media/                Lo que muestra la página (logo, hero, trabajos), generado desde originales/
+  favicon.ico, icon-192.png, apple-touch-icon.png, og-image.jpg
+scripts/                build-client-media, prepare-media, check-media, check-contrast,
+                        check-a11y, booking.test
 docs/                   design-plan, pendientes, README-cliente
 ```
 

@@ -22,7 +22,7 @@ const manifestFile = path.join(root, 'src/data/media.generated.json');
 const WIDTHS = {
   hero: [640, 960, 1280, 1920, 2400],
   trabajos: [320, 480, 720, 1080, 1600],
-  logo: [64, 128, 256],
+  logo: [64, 128, 256, 512],
 };
 const DEFAULT_WIDTHS = [480, 960, 1600];
 const FALLBACK_WIDTH = { hero: 1280, trabajos: 720, logo: 128 };
@@ -117,17 +117,34 @@ for (const source of sources) {
   manifest.images[rel] = entry;
 }
 
-// Imagen para compartir en redes (1200x630), recortada del póster del hero.
+// Imagen para compartir en redes (1200x630): el póster del hero oscurecido y, si existe, el logo encima.
 const poster = sources.find((f) => /hero[\\/]hero-espuma-poster\.(jpe?g|png|webp)$/i.test(f));
 if (poster) {
   const ogFile = path.join(outDir, 'og-image.jpg');
+  const logo = path.join(srcDir, 'logo/woper-net-logo.png');
+  const hasLogo = existsSync(logo);
+  const newest = Math.max(
+    (await fs.stat(poster)).mtimeMs,
+    hasLogo ? (await fs.stat(logo)).mtimeMs : 0,
+  );
   expected.add(ogFile);
-  if (!(await isFresh(ogFile, (await fs.stat(poster)).mtimeMs))) {
+  if (!(await isFresh(ogFile, newest))) {
     await fs.mkdir(outDir, { recursive: true });
+    const veil = {
+      input: { create: { width: 1200, height: 630, channels: 4, background: { r: 14, g: 16, b: 18, alpha: 0.82 } } },
+    };
+    const layers = [veil];
+    if (hasLogo) {
+      layers.push({
+        input: await sharp(logo).resize({ height: 420 }).toBuffer(),
+        gravity: 'centre',
+      });
+    }
     await sharp(poster)
       .rotate()
       .resize({ width: 1200, height: 630, fit: 'cover', position: 'attention' })
-      .jpeg({ quality: 80, mozjpeg: true })
+      .composite(layers)
+      .jpeg({ quality: 82, mozjpeg: true })
       .toFile(ogFile);
     generated += 1;
   }

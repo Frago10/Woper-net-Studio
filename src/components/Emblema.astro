@@ -8,16 +8,26 @@ import { getFile, getImage, srcset } from '../lib/media.ts';
 
 const svg = getFile('logo/woper-net-emblema.svg');
 const png = getImage('logo/woper-net-emblema.png');
+
+// El emblema se muestra a 36 px de alto y conserva su proporción.
+const HEIGHT = 36;
+const pngWidth = png ? Math.round((HEIGHT * png.width) / png.height) : HEIGHT;
 ---
 
 {
   svg ? (
-    <img class="marca__emblema" src={svg} width="36" height="36" alt="" />
+    <img class="marca__emblema" src={svg} height={HEIGHT} alt="" />
   ) : png ? (
     <picture>
-      <source type="image/avif" srcset={srcset(png.avif)} sizes="36px" />
-      <source type="image/webp" srcset={srcset(png.webp)} sizes="36px" />
-      <img class="marca__emblema" src={png.fallback.src} width="36" height="36" alt="" />
+      <source type="image/avif" srcset={srcset(png.avif)} sizes={`${pngWidth}px`} />
+      <source type="image/webp" srcset={srcset(png.webp)} sizes={`${pngWidth}px`} />
+      <img
+        class="marca__emblema"
+        src={png.fallback.src}
+        width={pngWidth}
+        height={HEIGHT}
+        alt=""
+      />
     </picture>
   ) : (
     <svg class="marca__emblema" viewBox="0 0 48 48" aria-hidden="true" focusable="false">

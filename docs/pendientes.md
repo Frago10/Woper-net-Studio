@@ -15,7 +15,7 @@ flyers; cada punto dice dónde se cambia cuando llegue la respuesta.
 | 6 | Dirección exacta y punto en el mapa de Calle Fallas, Desamparados | "Calle Fallas, Desamparados" y un enlace a la búsqueda en Google Maps | `location` en `site.ts` |
 | 7 | Número de WhatsApp para el enlace con mensaje (se asume +506 8964-7178) y si el handle "wopernet_st…" de los flyers es otra cuenta | wa.me/50689647178 e Instagram @wopernet | `contact` en `site.ts` |
 | 8 | Precio o rango de la restauración de faros y de otros trabajos sin precio publicado | "Te confirmamos el precio por WhatsApp" | `services` (precio de `faros`) en `site.ts` |
-| 9 | Archivos originales: logo en vector o PNG transparente, fotos, reels y video del hero | Emblema provisional dibujado y paneles vacíos en hero y galería | `public/media/` (ver `npm run check:media`) |
+| 9 | Archivos originales: logo en vector, más fotos, reels y video del hero | Llegaron el logo (PNG de 500 px) y tres fotos de WhatsApp (1200x1600). Ya están en la página. Faltan: logo en vector, una foto horizontal y oscura en alta resolución para el hero, reels y el video | `originales/` y `npm run media:originales` |
 | 10 | Dominio final para canonical, Open Graph y sitemap | El dominio que asigna Vercel | Variable `SITE_URL` en Vercel |
 
 ## Detectados durante el desarrollo
@@ -26,26 +26,35 @@ flyers; cada punto dice dónde se cambia cuando llegue la respuesta.
 | 12 | ¿El precio en sede cambia según el tamaño del vehículo? Los flyers muestran un solo precio por servicio | En sede se cobra el precio del servicio para sedán, SUV y pick up |
 | 13 | ¿La restauración de faros se hace a domicilio? | El formulario lo permite y el precio se confirma por WhatsApp |
 | 14 | ¿Cuál número es para llamadas? | El botón de llamada usa el 6482-2257 y el de WhatsApp el 8964-7178 |
-| 15 | Pies de foto de la galería | Son provisionales. Se ajustan cuando lleguen las fotos reales (`gallery` en `site.ts`) |
-| 16 | Autorización de cada foto o video con placas, rostros o carros de otras personas | Antes de publicar, difuminar las placas legibles |
-| 17 | El emblema de la cabecera y el favicon son provisionales | Se reemplazan solos al copiar `logo/woper-net-emblema.svg` en `public/media/`. El favicon (`public/favicon.svg`) se cambia a mano |
+| 15 | Pies de foto de la galería | "Lavado de espuma", "Después del lavado" y "Secado a mano", escritos a partir de lo que se ve en cada foto. Confirmar con el negocio (`gallery` en `site.ts`) |
+| 16 | Autorización de los dueños de los tres carros publicados y de la persona que aparece secando el pick up | Las placas de las dos fotos donde se leían y el número de casa están difuminados. La persona no muestra el rostro |
+| 17 | **El lema dentro del archivo del logo dice "AL CUIDADO AUTOMOTPIZ"** (una P en lugar de la R) | La página usa el logo recortado sin esa línea. Conviene pedir el archivo corregido, idealmente en vector (SVG) |
+| 19 | La foto del hero es de WhatsApp (1200 px de ancho) | En pantallas grandes se ve algo suave. Con un original horizontal de 2400 px o más mejora mucho |
+| 20 | Los originales con las placas visibles están en `originales/`, dentro del repositorio | Si el repositorio es público, conviene borrar esa carpeta o hacerlo privado. El sitio publicado no los incluye |
 | 18 | El formulario avisa si la fecha elegida en sede no es sábado ni domingo | No bloquea el envío. Si hay horario entre semana, se ajusta en `hours.weekdays` |
 
 ## Ajustes respecto al brief
 
 - **Titular en pantallas de menos de 360 px:** baja de 3 rem a 2,625 rem para que "Es cuidado."
   quepa en una línea a 320 px.
-- **Titular en escritorio:** ocupa el ancho que necesitan sus dos líneas en vez de las columnas
-  1 a 8. Con `8vw` la primera línea no cabe en 8 columnas; se priorizó el tamaño y las dos líneas.
+- **Tamaño del titular:** `clamp(3rem, 2rem + 4.4vw, 6.5rem)` en lugar de `clamp(3rem, 8vw, 7.5rem)`.
+  Con `8vw` las dos líneas ocupaban casi todo el ancho y el scrim tapaba la foto entera; así el
+  texto queda a la izquierda y el carro se ve a la derecha.
+- **Hero con dos recortes:** uno horizontal para pantallas anchas y uno vertical para móvil
+  (`posterMobile` en `site.ts`), porque una sola foto no encuadra bien en los dos formatos.
+- **Velo sobre la foto del hero:** `--tinte-hero` (32 % de asfalto) oscurece la foto para que se
+  lea como escena. La foto actual es de día y con paredes claras.
+- **Galería con 3 fotos:** son las que hay. El brief pide 6 a 8; se completa cuando lleguen más.
 - **Botón "Agendar" de la cabecera:** se muestra desde 768 px. En móvil la acción vive en la barra fija.
 - **Barra fija móvil:** aparece cuando el hero sale de pantalla y se oculta en contacto y footer.
   Como nunca tapa contenido, no se agregó padding inferior al `main`.
-- **Scrim del hero:** va anclado al bloque de texto con opacidad mínima de 0,86 en todo el ancho,
-  para garantizar 4,5:1 aunque la foto sea espuma blanca. Con una foto oscura casi no se nota.
+- **Scrim del hero:** va anclado al bloque de texto con opacidad mínima de 0,86, para garantizar
+  4,5:1 aunque la foto sea espuma blanca. En móvil cubre todo el ancho; desde 1024 px se
+  desvanece hacia la derecha.
 - **Video del hero:** arranca cuando termina la barra de luz (2,6 s después de cargar), así el
   póster es el LCP y los tres momentos no se pisan.
 - **Tokens añadidos:** `--blanco`, `--linea-oscura`, `--linea-clara`, `--scrim-texto`,
-  `--scrim-cabecera`, `--luz-fuerte`, `--luz-suave`, `--brillo-vacio`. Ningún valor del brief cambió:
+  `--scrim-cabecera`, `--tinte-hero`, `--luz-pico`, `--luz-fuerte`, `--luz-suave`, `--brillo-vacio`. Ningún valor del brief cambió:
   todos los pares pasaron `check-contrast` sin ajustes.
 - **Signo ₡:** no viene en el subconjunto latino de Archivo. Se extrajo a un archivo de 2 KB
   (`src/fonts/archivo-colon-wdth.woff2`) para no cargar el subconjunto extendido de 86 KB.

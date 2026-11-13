@@ -32,36 +32,52 @@ El cambio se publica al guardar el archivo en GitHub (ver sección 3).
 
 ## 2. Poner el logo, las fotos y los videos
 
-Los archivos van en **`public/media/`**, con estos nombres exactos:
+Hay dos carpetas:
+
+- **`originales/`**: los archivos tal como llegaron (logo y fotos de WhatsApp). No se publican.
+- **`public/media/`**: lo que la página muestra. Se genera desde `originales/` con
+  `npm run media:originales`, que difumina las placas, recorta la foto del hero y recorta el logo.
+
+Hoy la página usa esto:
 
 ```
 public/media/
-  logo/woper-net-emblema.svg      la llanta (o .png transparente de 1024 px)
-  logo/woper-net-wordmark.svg     el nombre (opcional)
-  hero/hero-espuma-poster.jpg     2400x1350, foto oscura del carro con espuma
-  hero/hero-espuma.mp4            1080p, 8 a 12 s, sin audio, máximo 4 MB
-  hero/hero-espuma.webm           el mismo video en WebM
+  logo/woper-net-emblema.png          la llanta, para la cabecera
+  logo/woper-net-logo.png             llanta y nombre, para el footer
+  hero/hero-espuma-poster.jpg         foto horizontal del hero (pantallas anchas)
+  hero/hero-espuma-poster-movil.jpg   recorte vertical del hero (celular)
   trabajos/01-lavado-espuma.jpg
-  trabajos/02-lavado-paso-a-paso.mp4   reel vertical 1080x1920
-  trabajos/02-lavado-paso-a-paso.jpg   portada del reel (recomendada)
-  trabajos/03-rines-llantas.jpg
-  trabajos/04-restauracion-faros.mp4
-  trabajos/04-restauracion-faros.jpg
-  trabajos/05-encerado.jpg
-  trabajos/06-detalle-llantas.jpg
+  trabajos/02-despues-del-lavado.jpg
+  trabajos/03-secado-a-mano.jpg
 ```
 
-- Fotos: 1600 px en el lado largo, `.jpg` o `.webp`. La página genera sola las versiones
-  livianas (AVIF y WebP) para cada tamaño de pantalla.
-- Mientras un archivo no exista, la página muestra un panel gris en su lugar.
+**Agregar una foto a la galería**
+
+1. Copiá la foto en `public/media/trabajos/` (1600 px en el lado largo, `.jpg` o `.webp`).
+   Si tiene una placa legible, difuminala antes, o ponela en `originales/` y agregala a la lista
+   `PHOTOS` de `scripts/build-client-media.mjs` con la zona a difuminar.
+2. En `src/data/site.ts`, agregá un elemento a `gallery` con `file`, `alt` (qué se ve, para
+   lectores de pantalla) y `caption` (el pie visible).
+
+**Agregar un reel:** copiá el `.mp4` vertical (1080x1920) y una portada `.jpg` con el mismo nombre.
+En `gallery` hay un ejemplo comentado listo para copiar.
+
+**Cambiar la foto del hero:** lo ideal es una foto horizontal, oscura, de 2400x1350 o más, guardada
+como `hero/hero-espuma-poster.jpg`, y un recorte vertical de 1080x1920 como
+`hero/hero-espuma-poster-movil.jpg`. La actual viene de WhatsApp y en pantallas grandes se ve suave.
+
+**Agregar el video del hero (opcional):** `hero/hero-espuma.mp4` y `hero/hero-espuma.webm`, 1080p,
+8 a 12 segundos, sin audio, máximo 4 MB. Sin video, el hero muestra la foto fija.
+
+Otros datos:
+
+- La página genera sola las versiones livianas (AVIF y WebP) para cada tamaño de pantalla.
+- Si un archivo de la galería no existe, la página muestra un panel gris en su lugar.
 - Para ver qué falta: `npm run check:media`.
-- Para cambiar una foto, su texto o el orden de la galería, editá `gallery` en `src/data/site.ts`.
-  Cada foto lleva `alt` (qué se ve, para lectores de pantalla) y `caption` (el pie visible).
-- El hero funciona solo con el póster. El video es opcional: sin él queda la foto fija.
-- La imagen que se ve al compartir el enlace en WhatsApp o redes se genera sola a partir del
-  póster del hero.
-- El ícono de la pestaña del navegador es `public/favicon.svg`. Cuando llegue el logo final,
-  hay que reemplazar ese archivo, `favicon.ico` y `apple-touch-icon.png`.
+- La imagen que se ve al compartir el enlace en WhatsApp o redes se genera sola con el logo
+  sobre la foto del hero.
+- El ícono de la pestaña (`favicon.ico`, `icon-192.png`, `apple-touch-icon.png`) sale del logo
+  con `npm run media:originales`.
 
 **Antes de publicar una foto o un video:** confirmá que tenés permiso de la persona dueña del
 carro y difuminá las placas legibles y los rostros.

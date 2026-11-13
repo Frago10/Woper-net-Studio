@@ -10,10 +10,15 @@ import Testimonials from './Testimonials.astro';
 import { site } from '../data/site.ts';
 import { getFile, getImage } from '../lib/media.ts';
 
-// Reels a 3 columnas; las fotos alternan 5 y 4 para que cada fila sume 12.
+/*
+  Anchos en columnas (de 12). Con reels: reel 3 y fotos alternando 5 y 4.
+  Solo fotos: 5, 4, 3 y luego 3, 4, 5. En ambos casos cada fila suma 12.
+*/
+const hasReels = site.gallery.some((item) => item.kind === 'reel');
+const photoSpans = hasReels ? [5, 4] : [5, 4, 3, 3, 4, 5];
 let photoCount = 0;
 const items = site.gallery.map((item) => {
-  const span = item.kind === 'reel' ? 3 : photoCount++ % 2 === 0 ? 5 : 4;
+  const span = item.kind === 'reel' ? 3 : photoSpans[photoCount++ % photoSpans.length]!;
   const image = item.kind === 'foto' ? getImage(item.file) : undefined;
   const video = item.kind === 'reel' ? getFile(item.file) : undefined;
   const poster = item.poster ? getImage(item.poster) : undefined;

@@ -32,11 +32,6 @@ const required = [
     files: [site.hero.poster],
     spec: '2400x1350, fotografía oscura, espuma sobre carro',
   },
-  ...site.hero.videos.map((file) => ({
-    label: 'Video del hero',
-    files: [file],
-    spec: '1080p, 8 a 12 s, sin audio, máx. 4 MB',
-  })),
   ...site.gallery.map((item) => ({
     label: `Trabajos: ${item.caption}`,
     files: [item.file],
@@ -46,6 +41,16 @@ const required = [
 ];
 
 const recommended = [
+  {
+    label: 'Recorte vertical del póster del hero, para móvil',
+    files: [site.hero.posterMobile],
+    spec: '1080x1920. Sin él, en móvil se usa la foto horizontal',
+  },
+  ...site.hero.videos.map((file) => ({
+    label: 'Video del hero',
+    files: [file],
+    spec: '1080p, 8 a 12 s, sin audio, máx. 4 MB. Sin él, el hero muestra la foto fija',
+  })),
   {
     label: 'Wordmark del logo',
     files: ['logo/woper-net-wordmark.svg', 'logo/woper-net-wordmark.png'],

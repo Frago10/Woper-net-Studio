@@ -11,6 +11,7 @@ const origin = Astro.site ?? new URL(Astro.url.origin);
 const canonical = new URL(Astro.url.pathname, origin).href;
 const ogImage = new URL(getOgImage(), origin).href;
 const poster = getImage(site.hero.poster);
+const posterMobile = getImage(site.hero.posterMobile);
 const { contact, location, hours } = site;
 
 const jsonLd = {
@@ -87,11 +88,25 @@ const jsonLd = {
 
     <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
     {
+      poster && posterMobile && (
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          media="(max-width: 767px)"
+          imagesrcset={srcset(posterMobile.avif)}
+          imagesizes="100vw"
+          fetchpriority="high"
+        />
+      )
+    }
+    {
       poster && (
         <link
           rel="preload"
           as="image"
           type="image/avif"
+          media={posterMobile ? '(min-width: 768px)' : undefined}
           imagesrcset={srcset(poster.avif)}
           imagesizes="100vw"
           fetchpriority="high"
@@ -99,8 +114,8 @@ const jsonLd = {
       )
     }
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 

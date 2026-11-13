@@ -93,7 +93,9 @@ export const site = {
   hero: {
     subtitle:
       'Lavado y detallado automotriz en Desamparados. También vamos a tu casa en San José y alrededores.',
+    /** Foto horizontal (pantallas anchas) y, opcional, un recorte vertical para móvil. */
     poster: 'hero/hero-espuma-poster.jpg',
+    posterMobile: 'hero/hero-espuma-poster-movil.jpg',
     posterAlt: 'Carro oscuro cubierto de espuma durante un lavado en Woper Net Studio',
     videos: ['hero/hero-espuma.webm', 'hero/hero-espuma.mp4'],
   },
@@ -235,41 +237,33 @@ export const site = {
     {
       file: 'trabajos/01-lavado-espuma.jpg',
       kind: 'foto',
-      alt: 'Carro cubierto de espuma durante el lavado exterior',
+      alt: 'Sedán azul oscuro cubierto de espuma durante el lavado exterior',
       caption: 'Lavado de espuma',
     },
     {
-      file: 'trabajos/02-lavado-paso-a-paso.mp4',
-      kind: 'reel',
-      poster: 'trabajos/02-lavado-paso-a-paso.jpg',
-      alt: 'Video del lavado exterior y el aspirado interior de un carro, paso a paso',
-      caption: 'Lavado y aspirado, paso a paso',
-    },
-    {
-      file: 'trabajos/03-rines-llantas.jpg',
+      file: 'trabajos/02-despues-del-lavado.jpg',
       kind: 'foto',
-      alt: 'Rin y llanta limpios y brillantes después del lavado',
-      caption: 'Rines y llantas después del lavado',
+      alt: 'SUV gris limpio y brillante, con rines negros, después del lavado',
+      caption: 'Después del lavado',
     },
     {
-      file: 'trabajos/04-restauracion-faros.mp4',
-      kind: 'reel',
-      poster: 'trabajos/04-restauracion-faros.jpg',
-      alt: 'Video de un faro opaco que queda transparente tras la restauración con polímero',
-      caption: 'Restauración de faros con polímero',
-    },
-    {
-      file: 'trabajos/05-encerado.jpg',
+      file: 'trabajos/03-secado-a-mano.jpg',
       kind: 'foto',
-      alt: 'Carrocería brillante después del encerado',
-      caption: 'Carrocería después del encerado',
+      alt: 'Pick up gris mientras se seca a mano con una toalla de microfibra',
+      caption: 'Secado a mano',
     },
-    {
-      file: 'trabajos/06-detalle-llantas.jpg',
-      kind: 'foto',
-      alt: 'Detalle de una llanta tratada después del lavado',
-      caption: 'Cuidado de llantas',
-    },
+    /*
+      Para sumar un reel (video vertical), copiá el .mp4 y su portada .jpg en
+      public/media/trabajos/ y agregá un elemento así:
+
+      {
+        file: 'trabajos/04-restauracion-faros.mp4',
+        kind: 'reel',
+        poster: 'trabajos/04-restauracion-faros.jpg',
+        alt: 'Video de un faro opaco que queda transparente tras la restauración con polímero',
+        caption: 'Restauración de faros con polímero',
+      },
+    */
   ] satisfies GalleryItem[] as GalleryItem[],
 
   /* Vacío hasta que el negocio confirme. Con elementos, la sección aparece sola. */

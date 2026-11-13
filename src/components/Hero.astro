@@ -1,12 +1,12 @@
 ---
 import Icon from './Icon.astro';
-import Imagen from './Imagen.astro';
 import MediaPlaceholder from './MediaPlaceholder.astro';
 import { site } from '../data/site.ts';
 import { whatsappUrl } from '../lib/booking.ts';
-import { getFile, getImage } from '../lib/media.ts';
+import { getFile, getImage, srcset } from '../lib/media.ts';
 
 const poster = getImage(site.hero.poster);
+const posterMobile = getImage(site.hero.posterMobile);
 const videos = site.hero.videos
   .map((file) => ({
     src: getFile(file),
@@ -27,13 +27,35 @@ const facts = [
     <div class="hero__medio">
       {
         poster ? (
-          <Imagen
-            image={poster}
-            alt={site.hero.posterAlt}
-            sizes="100vw"
-            class="hero__imagen"
-            priority
-          />
+          <picture>
+            {posterMobile && (
+              <>
+                <source
+                  media="(max-width: 767px)"
+                  type="image/avif"
+                  srcset={srcset(posterMobile.avif)}
+                  sizes="100vw"
+                />
+                <source
+                  media="(max-width: 767px)"
+                  type="image/webp"
+                  srcset={srcset(posterMobile.webp)}
+                  sizes="100vw"
+                />
+              </>
+            )}
+            <source type="image/avif" srcset={srcset(poster.avif)} sizes="100vw" />
+            <source type="image/webp" srcset={srcset(poster.webp)} sizes="100vw" />
+            <img
+              class="hero__imagen"
+              src={poster.fallback.src}
+              width={poster.width}
+              height={poster.height}
+              alt={site.hero.posterAlt}
+              decoding="async"
+              fetchpriority="high"
+            />
+          </picture>
         ) : (
           <MediaPlaceholder file={site.hero.poster} />
         )

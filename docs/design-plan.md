@@ -9,7 +9,7 @@ Referencia completa: `BRIEF.md`. Este documento resume las decisiones antes de p
 | Color | `--asfalto #0E1012`, `--grafito #1A1D21`, `--ceramica #F2F3F4`, `--cromo #A9AFB6`, `--acero #5B626A`, `--borde-oscuro #7B828A`, `--rojo #D4141C`, `--rojo-hover #B50F16` |
 | Añadidos | `--blanco #FFFFFF` (texto sobre rojo y foco), `--linea-oscura #2E3338` y `--linea-clara #D3D6D9` (filetes de 1 px que separan filas), `--scrim-texto 0.86` (opacidad mínima del scrim detrás del texto del hero) |
 | Tipografía | Archivo variable. Titulares: ancho 120, peso 300, -0,02 em. Cuerpo: ancho 100, peso 400. Precios: ancho 125, peso 500, cifras tabulares |
-| Escala | display `clamp(3rem, 8vw, 7.5rem)`, h2 `clamp(2.25rem, 4.5vw, 4rem)`, h3 `clamp(1.5rem, 2vw, 2rem)`, cuerpo 1,0625 rem, pequeño 0,9375 rem |
+| Escala | display `clamp(3rem, 2rem + 4.4vw, 6.5rem)`, h2 `clamp(2.25rem, 4.5vw, 4rem)`, h3 `clamp(1.5rem, 2vw, 2rem)`, cuerpo 1,0625 rem, pequeño 0,9375 rem |
 | Espacio | 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 160. Sección `clamp(96px, 12vw, 200px)`. Margen `clamp(20px, 5vw, 80px)`. 12 columnas, 1440 px |
 | Forma | Fotos y video a 0 px. Controles a 4 px. Botón de 56 px. Foco de 3 px con desfase de 3 px |
 | Movimiento | Un solo momento al cargar: titular por líneas (700 ms) y barra de luz (1,6 s, una vez). El resto, 150 ms y solo como respuesta a una acción |

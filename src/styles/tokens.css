@@ -20,6 +20,8 @@
   /* Opacidad mínima del scrim detrás del texto del hero (asfalto sobre la foto) */
   --scrim-texto: 0.86;
   --scrim-cabecera: 0.8;
+  /* Velo parejo sobre la foto o el video del hero: la oscurece para que se lea como escena */
+  --tinte-hero: 0.32;
 
   /* Barra de luz del hero y brillo de los paneles vacíos (blanco translúcido) */
   --luz-pico: 0.24;
@@ -38,7 +40,7 @@
   --peso-medio: 500;
   --interletrado-titular: -0.02em;
 
-  --t-display: clamp(3rem, 8vw, 7.5rem);
+  --t-display: clamp(3rem, 2rem + 4.4vw, 6.5rem);
   --t-h2: clamp(2.25rem, 4.5vw, 4rem);
   --t-h3: clamp(1.5rem, 2vw, 2rem);
   --t-precio: clamp(2rem, 3vw, 2.75rem);

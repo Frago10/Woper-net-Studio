@@ -15,4 +15,6 @@ export default defineConfig({
     inlineStylesheets: 'always',
   },
   integrations: [sitemap()],
+  // Sin la barra de herramientas de Astro: la vista local se ve igual que el sitio publicado.
+  devToolbar: { enabled: false },
 });

@@ -36,7 +36,7 @@
 
 .marca__emblema {
   flex: none;
-  width: 36px;
+  width: auto;
   height: 36px;
 }
 
@@ -203,17 +203,23 @@
   object-fit: cover;
 }
 
-/* Scrim superior: asegura el contraste de la navegación sobre la foto. */
+/*
+  Sobre la foto: un velo parejo que la oscurece y, arriba, el scrim que asegura
+  el contraste de la navegación.
+*/
 .hero__medio::after {
+  --velo: color-mix(in srgb, var(--asfalto) calc(var(--tinte-hero) * 100%), transparent);
   content: '';
   position: absolute;
-  inset: 0 0 auto;
-  height: calc(var(--alto-cabecera) * 2.5);
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--asfalto) calc(var(--scrim-cabecera) * 100%), transparent) 0 40%,
-    transparent
-  );
+  inset: 0;
+  background:
+    linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--asfalto) calc(var(--scrim-cabecera) * 100%), transparent) 0 40%,
+        transparent
+      )
+      top / 100% calc(var(--alto-cabecera) * 2.5) no-repeat,
+    linear-gradient(var(--velo), var(--velo));
 }
 
 /*
@@ -378,6 +384,11 @@
 @media (min-width: 1024px) {
   .hero__titulo .linea {
     white-space: nowrap;
+  }
+
+  /* En pantallas anchas el scrim se concentra a la izquierda y deja ver la foto a la derecha. */
+  .hero__contenido::before {
+    mask-image: linear-gradient(to right, var(--asfalto) 62%, transparent 94%);
   }
 }
 
@@ -1113,6 +1124,15 @@ button.trabajo__marco {
 
 .pie__fila {
   row-gap: var(--s-48);
+}
+
+.pie__logo {
+  display: inline-block;
+}
+
+.pie__logo img {
+  width: 168px;
+  height: auto;
 }
 
 .pie__frase {

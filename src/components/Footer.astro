@@ -2,15 +2,38 @@
 import Marca from './Marca.astro';
 import { site } from '../data/site.ts';
 import { whatsappUrl } from '../lib/booking.ts';
+import { getImage, srcset } from '../lib/media.ts';
 
 const { contact } = site;
+// Logo completo (llanta y nombre). Si no existe, se usa el emblema con el nombre en texto.
+const logo = getImage('logo/woper-net-logo.png');
+const LOGO_WIDTH = 168;
 ---
 
 <footer class="pie oscuro">
   <div class="contenedor">
     <div class="rejilla pie__fila">
       <div class="pie__marca">
-        <Marca />
+        {
+          logo ? (
+            <a class="pie__logo" href="#inicio" aria-label={`${site.name}, ir al inicio`}>
+              <picture>
+                <source type="image/avif" srcset={srcset(logo.avif)} sizes={`${LOGO_WIDTH}px`} />
+                <source type="image/webp" srcset={srcset(logo.webp)} sizes={`${LOGO_WIDTH}px`} />
+                <img
+                  src={logo.fallback.src}
+                  width={LOGO_WIDTH}
+                  height={Math.round((LOGO_WIDTH * logo.height) / logo.width)}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+            </a>
+          ) : (
+            <Marca />
+          )
+        }
         <p class="pie__frase">{site.brandPhrase.join(' ')}</p>
       </div>
 
